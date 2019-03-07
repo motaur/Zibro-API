@@ -5,7 +5,7 @@ const Joi = require('joi');         // input validation  ---> npm i joi
 const log = require('./logger');    // export logger module
 const express = require('express'); //npm i express
 const { Pool } = require('pg');
-//const bodyParser = require('body-parser');  //npm i body-parser
+const bodyParser = require('body-parser');  //npm i body-parser
 
 //============= DB ===============//
 const pool = new Pool(
@@ -21,9 +21,9 @@ const pool = new Pool(
 const port = process.env.PORT || 3000;
 const app = express();
 //Here we are configuring express to use body-parser as middle-ware.
-app.use(express.json());
-/*app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());*/
+//app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // Listen to port 3000
 app.listen(port, () => log(`Dev app listening on port ${port}!`) );
@@ -39,133 +39,199 @@ const events = [
 app.get('/', (req, res) =>
 {
     log('called main')
-    res.send(`Dev app listening on port ${port}!`);
+    res.json(`Dev app listening on port ${port}!`);
 });
 
 app.get('/api/events', async (req, res) =>
 {
     log('called get events')
-    const { rows } = await pool.query(`SELECT * FROM events;`)
-    res.send(rows);
+    const { rows: events } = await pool.query(`SELECT * FROM events;`)
+    const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
+    
+    events.forEach(e=>e.images = images.filter(i=> i.eventid === e.id));
+
+    res.json(events);
 });
 
-app.get('/api/eventsbyorganizer/:id/',  async (req, res) =>
+app.get('/api/eventsByOrganizer/:id/',  async (req, res) =>
 {    
     log('called get events by organizer id')
     
-    const { rows } = await pool.query(`SELECT * FROM events WHERE organizerid = '${req.params.id}'`)
+    const { rows: events } = await pool.query(`SELECT * FROM events WHERE organizerId = '${req.params.id}'`)
 
-    if (rows.length == 0) return res.status(404).send("event wasn't found");
+    if (events.length == 0) return res.status(404).json("no events were found");
 
-    res.send(rows);
+    const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
+
+    events.forEach(e=> e.images = images.filter(i=> i.eventid === e.id));
+
+    res.json(events);
 });
 
-app.get('/api/eventsbystatus/:statusid/', async (req, res) =>
+app.get('/api/eventsByStatus/:id/', async (req, res) =>
 {    
     log('called get events by status id')
     
-    const { rows } = await pool.query(`SELECT * FROM events WHERE status = ${req.params.statusid};`);
+    const { rows } = await pool.query(`SELECT * FROM events WHERE status = ${req.params.id};`);
 
-    if (rows.length == 0) return res.status(404).send("event wasn't found");
+    if (rows.length == 0) return res.status(404).json("event wasn't found");
 
-    res.send(rows);
+    const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
+
+    events.forEach(e=> e.images = images.filter(i=> i.eventid === e.id));
+
+    res.json(events);
 });
 
 app.get('/api/events/:id/',  async (req, res) =>
 {    
     log('called get event by id')
 
-    let data = [];
+    let event = new Object();    
     
-    const { rows: event } = await pool.query(`SELECT * FROM events WHERE id = ${req.params.id}`)
+    const { rows: properties } = await pool.query(`SELECT * FROM events WHERE id = ${req.params.id}`)
     //const event = events.find(event => event.id === parseInt(req.params.id));
-    if (event.length == 0) return res.status(404).send("event wasn't found");  
+    if (properties.length == 0) return res.status(404).json("event wasn't found");  
 
     const { rows: images } = await pool.query(`SELECT id, title, status, link FROM imagesforevents WHERE eventid = ${req.params.id}`)
 
-    data.push(event)
-    data.push(images)
+    event.meta = properties
+    event.images = images
 
-    res.send(data) 
+    res.json(event) 
 }); 
 
-app.post('/api/events/', (req, res) =>
+app.post('/api/events/', async (req, res) =>
 {
     log('called post event')
 
-    const { error } = validateEvent(req.body);
+    const { error } = validatePostEvent(req.body);
 
-    if (error) return res.status(400).send(error.details[0].message)
+    if (error) return res.status(400).json(error.details[0].message)
 
     try
-    {
-        const body = pool.query(`INSERT INTO events (title, organizerid, date)
-        VALUES (            
+    {        
+        const body = await pool.query(`INSERT INTO events 
+        (
+            title, 
+            organizerid, 
+            date
+        )
+        VALUES 
+        (            
             '${req.body.title}',
             '${req.body.organizerid}', 
             '${req.body.date}'
-            )`)  
+        );
+        SELECT * FROM events WHERE id = (SELECT MAX(id) FROM events)`)        
         
-        return res.status(201).json(body) 
+        res.status(201).json(body[1].rows[0])
     }
     catch(error)
     {
-        return res.status(201).json('error') 
-    }
-         
+        res.status(201).json(error) 
+    }       
 
 });
 
-app.put('/api/events/:id', (req, res) =>
+app.put('/api/events/:id', async (req, res) =>
 {
     log('called put event by id')
 
-    const event = events.find(event => event.id === parseInt(req.params.id));
+    const { error } = validatePutEvent(req.body);
 
-    if (!event) return res.status(404).send("event wasn't found");
+    if (error) return res.status(400).json(error.details[0].message);  
 
-    const { error } = validateEvent(req.body);
+    try
+    { 
+        const body = await pool.query(`UPDATE events SET 
+            title = coalesce(${undefinedToNull(req.body.title)}, title),
+            description = coalesce(${undefinedToNull(req.body.description)}, description),
+            type = coalesce(${undefinedToNull(req.body.type)}, type)
+                            
+        WHERE id = ${req.params.id};
+        SELECT * FROM events WHERE id = ${req.params.id};`)
+        
+        res.status(201).json(body[1].rows[0])
+    }
+    catch(error)
+    {
+        res.status(201).json(error) 
+    }
 
-    if (error) return res.status(400).send(error.details[0].message);  
-    
-    event.name = req.body.name;
-    event.location = req.body.location;
-    event.date = req.body.date;
-    event.organizerId = req.body.organizerId;
-
-    res.send(event);
+    /*datedescription = coalesce(${undefinedToNull(req.body.datedescription)}, datedescription),
+            locationname = coalesce(${undefinedToNull(req.body.locationname)}, locationname),
+            status = coalesce(${undefinedToNull(req.body.status)}, status),
+            like = coalesce(${undefinedToNull(req.body.like)}, like),
+            locx = coalesce(${undefinedToNull(req.body.locx)}, locx),
+            locy = coalesce(${undefinedToNull(req.body.locy)}, locy),
+            price = coalesce(${undefinedToNull(req.body.price)}, price),
+            date = coalesce(${undefinedToNull(req.body.date)}, date)  */
 
 });
 
-function validateEvent(event)
+function undefinedToNull(value)
 {
+    if (typeof value === "undefined")
+        return null    
+    else
+        return value     
+}
+
+function validatePutEvent(event)
+{
+    //every field is optional
     const schema = 
-    {        
-        title: Joi.string().min(3).required(),
-        description: Joi.string().required(),
-        organizerid: Joi.string().required(), 
-        datedescription: Joi.string().required(), 
-        locationname: Joi.string().required(),
-        type:  Joi.number().integer().required(), 
-        //status:  Joi.integer().required(),   //auto as NSY
-        locx: Joi.number().required(),
-        locy: Joi.number().required(),
-        price: Joi.number().required(), 
-        date: Joi.allow()  //TODO timestamp
+    {   
+        title: Joi.string().min(3).allow(),     // max letters?
+        date: Joi.date().allow(), //time stamp format?
+        description: Joi.string().allow(),      // max letters?
+        datedescription: Joi.string().allow(), // max letters?
+        locationname: Joi.string().allow(), // max letters?
+        type:  Joi.number().integer().min(1).allow(), // from 1 to ?
+        status:  Joi.number().integer().min(1).allow(),   // from 1 to ?
+        like: Joi.number().integer().min(0).allow(), // from 0 to infinity
+        locx: Joi.number().allow(),
+        locy: Joi.number().allow(),
+        price: Joi.number().min(0).allow() // from 0 to infinity
     };
 
     return Joi.validate(event, schema);
 }
 
+function validatePostEvent(event)
+{
+    const schema = 
+    {        
+        title: Joi.string().min(3).required(),
+        organizerid: Joi.string().required(),
+        date: Joi.date().required(),
+
+        description: Joi.string().allow(),
+        datedescription: Joi.string().allow(), 
+        locationname: Joi.string().allow(),
+        type:  Joi.number().integer().allow(), 
+       // status:  Joi.integer().allow(),   //auto as 1 - NSY
+        locx: Joi.number().allow(),
+        locy: Joi.number().allow(),
+        price: Joi.number().allow(), 
+        
+    };
+
+    return Joi.validate(event, schema);
+}
+
+/*
 app.delete('/api/events/:id', (req, res) =>
 {
     log('called delete event by id')
     const event = events.find(event => event.id === parseInt(req.params.id));
 
-    if (!event) return res.status(404).send("event wasn't found");
+    if (!event) return res.status(404).json("event wasn't found");
 
     const index = events.indexOf(event);
     events.splice(index, 1);
 
-    res.send(event);
+    res.json(event);
 });
+*/
