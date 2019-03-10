@@ -4,7 +4,7 @@
   "description": "zibro-api",
   "main": "app.js",
   "engines": {"node": "10.15.3"},
-  "scripts": {"start": "nodemon app.js"},
+  "scripts": {"start": "node app.js"},
   "keywords": [],
   "author": "",
   "license": "ISC",
