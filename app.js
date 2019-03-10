@@ -28,13 +28,6 @@ app.use(bodyParser.json());
 // Listen to port 3000
 app.listen(port, () => log(`Dev app listening on port ${port}!`) );
 
-//============= VARIABLES ===============//
-const events = [
-    {id: 1, name: "birthday", location: "Tel-Aviv", date: "29-01-2019" , organizerId: 1},
-    {id: 2, name: "Wedding", location: "Tel-Aviv", date: "30-01-2019" , organizerId: 345},
-    {id: 3, name: "Concert", location: "Tel-Aviv", date: "21-01-2019" , organizerId: 7567},
-]
-
 //============= CONTROLLERS ===============//
 app.get('/', (req, res) =>
 {
@@ -56,7 +49,7 @@ app.get('/api/events', async (req, res) =>
 app.get('/api/eventsByOrganizer/:id/',  async (req, res) =>
 {    
     log('called get events by organizer id')
-    
+
     const { rows: events } = await pool.query(`SELECT * FROM events WHERE organizerId = '${req.params.id}'`)
 
     if (events.length == 0) return res.status(404).json("no events were found");
@@ -141,16 +134,28 @@ app.put('/api/events/:id', async (req, res) =>
     const { error } = validatePutEvent(req.body);
 
     if (error) return res.status(400).json(error.details[0].message);  
-
+       
+    let query = `UPDATE events SET 
+        title = coalesce(${undefinedToNull(req.body.title)}, title),
+        type = coalesce(${undefinedToNull(req.body.type)}, type),
+        datedescription = coalesce(${undefinedToNull(req.body.datedescription)}, datedescription),
+        locationname = coalesce(${undefinedToNull(req.body.locationname)}, locationname),
+        status = coalesce(${undefinedToNull(req.body.status)}, status),
+        price = coalesce(${undefinedToNull(req.body.price)}, price),
+        likes = coalesce(${undefinedToNull(req.body.like)}, likes),
+        locx = coalesce(${undefinedToNull(req.body.locx)}, locx),
+        locy = coalesce(${undefinedToNull(req.body.locy)}, locy),
+        date = coalesce(${undefinedToNull(req.body.date)}, date)
+                           
+    WHERE id = ${req.params.id};
+    SELECT * FROM events WHERE id = ${req.params.id};`
+   /*
+   
+        
+   */
     try
     { 
-        const body = await pool.query(`UPDATE events SET 
-            title = coalesce(${undefinedToNull(req.body.title)}, title),
-            description = coalesce(${undefinedToNull(req.body.description)}, description),
-            type = coalesce(${undefinedToNull(req.body.type)}, type)
-                            
-        WHERE id = ${req.params.id};
-        SELECT * FROM events WHERE id = ${req.params.id};`)
+        const body = await pool.query(query)
         
         res.status(201).json(body[1].rows[0])
     }
@@ -158,22 +163,14 @@ app.put('/api/events/:id', async (req, res) =>
     {
         res.status(201).json(error) 
     }
-
-    /*datedescription = coalesce(${undefinedToNull(req.body.datedescription)}, datedescription),
-            locationname = coalesce(${undefinedToNull(req.body.locationname)}, locationname),
-            status = coalesce(${undefinedToNull(req.body.status)}, status),
-            like = coalesce(${undefinedToNull(req.body.like)}, like),
-            locx = coalesce(${undefinedToNull(req.body.locx)}, locx),
-            locy = coalesce(${undefinedToNull(req.body.locy)}, locy),
-            price = coalesce(${undefinedToNull(req.body.price)}, price),
-            date = coalesce(${undefinedToNull(req.body.date)}, date)  */
-
 });
 
 function undefinedToNull(value)
 {
     if (typeof value === "undefined")
-        return null    
+        return null   
+    else if (typeof value === "string")   
+        return `'` + value + `'`
     else
         return value     
 }
@@ -190,7 +187,7 @@ function validatePutEvent(event)
         locationname: Joi.string().allow(), // max letters?
         type:  Joi.number().integer().min(1).allow(), // from 1 to ?
         status:  Joi.number().integer().min(1).allow(),   // from 1 to ?
-        like: Joi.number().integer().min(0).allow(), // from 0 to infinity
+        likes: Joi.number().integer().min(0).allow(), // from 0 to infinity
         locx: Joi.number().allow(),
         locy: Joi.number().allow(),
         price: Joi.number().min(0).allow() // from 0 to infinity
