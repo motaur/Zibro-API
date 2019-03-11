@@ -208,7 +208,7 @@ function validatePostEvent(event)
         datedescription: Joi.string().allow(), 
         locationname: Joi.string().allow(),
         type:  Joi.number().integer().allow(), 
-       // status:  Joi.integer().allow(),   //auto as 1 - NSY
+        status:  Joi.integer().allow(),   //auto as 1 - NSY
         locx: Joi.number().allow(),
         locy: Joi.number().allow(),
         price: Joi.number().allow(), 
