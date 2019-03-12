@@ -3,16 +3,20 @@
   "version": "1.0.0",
   "description": "zibro-api",
   "main": "app.js",
-  "engines": {"node": "10.15.3"},
-  "scripts": {"start": "node app.js"},
+  "engines": {
+    "node": "10.15.3"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": 
-  {
+  "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "joi": "^14.3.1",
+    "npm-install-all": "^1.1.21",
     "pg": "^7.8.0"
   }
 }

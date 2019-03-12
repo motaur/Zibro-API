@@ -10,28 +10,20 @@ const bodyParser = require('body-parser');  //npm i body-parser
 //============= DB ===============//
 const pool = new Pool(
 {
-    user: 'fbvqfgdqjobjgg',
-    host: 'ec2-54-247-85-251.eu-west-1.compute.amazonaws.com',
-    database: 'dd5egnonjqfvh3',
-    password: 'b334d1e4c73a44c4009ef22aec8b9b540651512e37cba3d028af869f2d45e67a',
-    port: 5432,
-});
-
-/*
     //heroku temporary
     user: 'fbvqfgdqjobjgg',
     host: 'ec2-54-247-85-251.eu-west-1.compute.amazonaws.com',
     database: 'dd5egnonjqfvh3',
     password: 'b334d1e4c73a44c4009ef22aec8b9b540651512e37cba3d028af869f2d45e67a',
-    port: 5432,
+    port: 5432
 
     //local
-    user: 'postgres',
+    /*user: 'postgres',
     host: 'localhost',
     database: 'Zibro',
     password: '123',
-    port: 5432,
- */   
+    port: 5432-*/
+});
  
 //============= SERVER ===============//
 const port = process.env.PORT || 3000;
@@ -81,9 +73,9 @@ app.get('/api/eventsByStatus/:id/', async (req, res) =>
 {    
     log('called get events by status id')
     
-    const { rows } = await pool.query(`SELECT * FROM events WHERE status = ${req.params.id};`);
+    const { rows: events } = await pool.query(`SELECT * FROM events WHERE status = ${req.params.id};`);
 
-    if (rows.length == 0) return res.status(404).json("event wasn't found");
+    if (events.length == 0) return res.status(404).json("event wasn't found");
 
     const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
 
