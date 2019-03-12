@@ -10,12 +10,28 @@ const bodyParser = require('body-parser');  //npm i body-parser
 //============= DB ===============//
 const pool = new Pool(
 {
+    user: 'fbvqfgdqjobjgg',
+    host: 'ec2-54-247-85-251.eu-west-1.compute.amazonaws.com',
+    database: 'dd5egnonjqfvh3',
+    password: 'b334d1e4c73a44c4009ef22aec8b9b540651512e37cba3d028af869f2d45e67a',
+    port: 5432,
+});
+
+/*
+    //heroku temporary
+    user: 'fbvqfgdqjobjgg',
+    host: 'ec2-54-247-85-251.eu-west-1.compute.amazonaws.com',
+    database: 'dd5egnonjqfvh3',
+    password: 'b334d1e4c73a44c4009ef22aec8b9b540651512e37cba3d028af869f2d45e67a',
+    port: 5432,
+
+    //local
     user: 'postgres',
     host: 'localhost',
     database: 'Zibro',
     password: '123',
     port: 5432,
-});
+ */   
  
 //============= SERVER ===============//
 const port = process.env.PORT || 3000;
