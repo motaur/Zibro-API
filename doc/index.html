@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Zibro API Documentation</title>
+        <link rel="stylesheet" href="ico.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta charset="utf-8">
+        <!--bootstrap CSS-->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <style>
+            button 
+            {
+                margin: 8px;
+                width: 60px;
+            }
+            footer
+            {
+                background-color: #f5f5f5;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="jumbotron text-center">
+            <h1>ZIBRO-API</h1>
+            <h4>Documentation</h4> 
+            <p>Format: JSON. No Authentication</p>
+        </div>
+
+        <div class="container">
+            <div class="my-3 p-3 bg-white rounded shadow-sm">
+                <h6 class="border-bottom border-gray pb-2 mb-0">Events group</h6>
+                <div class="media text-muted pt-3">
+                    <a href="api/events/">
+                        <button  type="button" class="btn btn-primary">GET</button>
+                    </a>
+
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">/api/events</strong>
+                        returns all events with all fields, with images arrays.
+                    </p>
+                </div>
+
+                <div class="media text-muted pt-3">
+                    <a href="api/events/1">
+                        <button  type="button" class="btn btn-primary">GET</button>
+                    </a>
+
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">/api/events/:id</strong>
+                        returns a specific event.
+                    </p>
+                </div>
+
+                <div class="media text-muted pt-3">
+                    <a href="api/eventsByOrganizer/10">
+                        <button  type="button" class="btn btn-primary">GET</button>
+                    </a>
+
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">/api/eventsByOrganizer/:id</strong>
+                        returns events by organizer id with all fields and images arrays
+                    </p>
+                </div>
+
+                <div class="media text-muted pt-3">
+                    <a href="api/eventsByStatus/1">
+                        <button  type="button" class="btn btn-primary">GET</button>
+                    </a>
+
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">/api/eventsByStatus/:id</strong>
+                        returns events by status id with all fields and images arrays
+                    </p>
+                </div>
+
+                <div class="media text-muted pt-3">
+                    <a href="api/events/" method="post">
+                        <button type="button" class="btn btn-danger">POST</button>
+                    </a>
+
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">/api/events/</strong>
+                        Returns posted event with all fields<br>
+                        Fields are required:<br>
+                        <i>-  title (string minimum 3 characters), organizerid (string), date (timestamp)</i><br>
+                        Fields are optional:<br> 
+                        <i>-  description (string) datedescription (string) locationname (string) type (integer, 1 is minimum allowed, default value: 1) status (integer, 1 is minimum allowed, default value: 1) locx (float) locy (float) price (float, 0 is minimum allowed, default value: 0)</i><br>
+                        Any other fields are not allowed
+                    </p>
+                </div>
+
+                <div class="media text-muted pt-3">
+                    <a href="api/events/" method="put">
+                            <button type="button" class="btn btn-warning">PUT</button>
+                    </a>
+
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">/api/events/:id</strong>
+                        Returns edited event with all fields<br>
+                        Parameter id of event is required after "/"
+                        Fields are optional:<br>
+                        <i>-  title (string minimum 3 characters), organizerid (string) date (timestamp) description (string) datedescription (string) locationname (string) type (integer, 1 is minimum allowed, default value: 1) status (integer, 1 is minimum allowed, default value: 1) locx (float) locy (float) price (float, 0 is minimum allowed, default value: 0)</i><br>
+                        any other fields are not allowed
+                    </p>
+                </div>
+
+                
+            </div>        
+        </div>        
+        <footer class="footer mt-auto py-3">
+            <div class="container">
+                <span class="text-muted">@ 2019</span>
+            </div>
+        </footer>
+    </body>
+</html>
