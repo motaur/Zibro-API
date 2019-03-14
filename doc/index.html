@@ -2,11 +2,18 @@
 <html lang="en">
     <head>
         <title>Zibro API Documentation</title>
-        <link rel="stylesheet" href="ico.png">
+        
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta charset="utf-8">
-        <!--bootstrap CSS-->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+        <base href="/">       
+        
+        <link rel="icon" href="https://cdn3.iconfinder.com/data/icons/business-office-2/512/folders-512.png">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        
         <style>
             button 
             {
@@ -75,7 +82,7 @@
                 </div>
 
                 <div class="media text-muted pt-3">
-                    <a href="api/events/" method="post">
+                    <a method="post" data-toggle="popover" title="Cannot call from browser" data-content="Use external service, like Postman">
                         <button type="button" class="btn btn-danger">POST</button>
                     </a>
 
@@ -91,9 +98,9 @@
                 </div>
 
                 <div class="media text-muted pt-3">
-                    <a href="api/events/" method="put">
-                            <button type="button" class="btn btn-warning">PUT</button>
-                    </a>
+                    <a method="put" data-toggle="popover" title="Cannot call from browser" data-content="Use external service, like Postman">
+                        <button type="button" class="btn btn-warning">PUT</button>
+                    </a>                 
 
                     <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
                         <strong class="d-block text-gray-dark">/api/events/:id</strong>
@@ -103,15 +110,21 @@
                         <i>-  title (string minimum 3 characters), organizerid (string) date (timestamp) description (string) datedescription (string) locationname (string) type (integer, 1 is minimum allowed, default value: 1) status (integer, 1 is minimum allowed, default value: 1) locx (float) locy (float) price (float, 0 is minimum allowed, default value: 0)</i><br>
                         any other fields are not allowed
                     </p>
-                </div>
-
-                
+                </div>               
             </div>        
-        </div>        
+        </div>            
+        
         <footer class="footer mt-auto py-3">
             <div class="container">
                 <span class="text-muted">@ 2019</span>
             </div>
         </footer>
+        
+        <script>
+            $(document).ready(function(){
+                $('[data-toggle="popover"]').popover();   
+            });
+        </script>
+        
     </body>
 </html>
