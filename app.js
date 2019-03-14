@@ -164,7 +164,7 @@ app.post('/api/events/', async (req, res) =>
     }
     catch(error)
     {
-        res.status(201).json(error) 
+        res.json(error) 
     }       
 
 });
