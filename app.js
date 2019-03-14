@@ -41,7 +41,7 @@ app.get('/', (req, res) =>
 {
     log('called main')
     
-    res.sendfile('doc/index.html', {root: __dirname })    
+    res.sendFile('doc/index.html', {root: __dirname })    
     //res.json(`Dev app listening on port ${port}!`);
 });
 
@@ -250,7 +250,7 @@ function validatePostEvent(event)
         datedescription: Joi.string().allow(), 
         locationname: Joi.string().allow(),
         type:  Joi.number().integer().allow(), 
-        status:  Joi.integer().allow(),   //auto as 1 - NSY
+        status:  Joi.number().integer().allow(),   //auto as 1 - NSY
         locx: Joi.number().allow(),
         locy: Joi.number().allow(),
         price: Joi.number().allow(), 
@@ -260,17 +260,80 @@ function validatePostEvent(event)
     return Joi.validate(event, schema);
 }
 
-/*
-app.delete('/api/events/:id', (req, res) =>
+
+app.delete('/api/events/:id', async (req, res) =>
 {
     log('called delete event by id')
-    const event = events.find(event => event.id === parseInt(req.params.id));
 
-    if (!event) return res.status(404).json("event wasn't found");
+    try
+    {
+        const { rows: event } = await pool.query(`SELECT * FROM events WHERE id = ${req.params.id}`)
 
-    const index = events.indexOf(event);
-    events.splice(index, 1);
+        if (event.length == 0) return res.status(404).json("no events were found")        
 
-    res.json(event);
+        await pool.query(`DELETE FROM events WHERE id = ${req.params.id}`)
+
+        res.json("event with id " + req.params.id + " has been removed")
+    }
+    catch(error)
+    {
+        res.json(error)
+    }
 });
-*/
+
+app.post('/api/images/', async (req, res) =>
+{
+    log('called post image')
+
+    const { error } = validatePostImage(req.body);
+    
+    if (error) return res.status(400).json(error.details[0].message)     
+
+    try
+    {    
+        //check if event exist
+        const { rows: event } = await pool.query(`SELECT * FROM events WHERE id = ${req.body.eventid}`)
+
+        if (event.length == 0) return res.status(404).json("no events were found with id " + req.body.eventid)
+        
+        const body = await pool.query(`INSERT INTO imagesforevents 
+        (
+            title, 
+            link, 
+            eventid,
+            status
+        )
+        VALUES 
+        (            
+            '${req.body.title}',
+            '${req.body.link}', 
+             ${req.body.eventid},
+             ${req.body.status}
+             
+        );
+        SELECT * FROM imagesforevents WHERE id = (SELECT MAX(id) FROM imagesforevents)`)        
+        
+        res.status(201).json(body[1].rows[0])
+    }
+    catch(error)
+    {
+        res.json(error) 
+    }       
+
+});
+
+function validatePostImage(event)
+{
+    const schema = 
+    {        
+        title: Joi.string().required(), 
+        eventid: Joi.number().integer().required(),
+        link: Joi.string().uri().required(),
+        status: Joi.number().integer().required()       
+    };
+
+    return Joi.validate(event, schema);
+}
+
+
+

@@ -18,7 +18,7 @@
             button 
             {
                 margin: 8px;
-                width: 60px;
+                width: 80px;
             }
             footer
             {
@@ -111,9 +111,39 @@
                         <i>-  title (string minimum 3 characters), organizerid (string) date (timestamp) description (string) datedescription (string) locationname (string) type (integer, 1 is minimum allowed, default value: 1) status (integer, 1 is minimum allowed, default value: 1) locx (float) locy (float) price (float, 0 is minimum allowed, default value: 0)</i><br>
                         Any other fields are not allowed.
                     </p>
+                </div>
+                <div class="media text-muted pt-3">
+                    <a data-toggle="popover" title="Cannot call DELETE from browser" data-content="Use external service, like Postman">
+                        <button type="button" class="btn btn-info">DELETE</button>
+                    </a>                 
+
+                    <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                        <strong class="d-block text-gray-dark">/api/events/:id</strong>
+                        Returns message with id of removed event<br>
+                        Parameter id of event is required after "/"<br>                        
+                    </p>
                 </div>               
             </div>        
-        </div>            
+        </div>
+        <br> <br>
+        <div class="container">
+                <div class="my-3 p-3 bg-white rounded shadow-sm">
+                    <h6 class="border-bottom border-gray pb-2 mb-0">Images group</h6>
+                    <div class="media text-muted pt-3">
+                            <a data-toggle="popover" title="Cannot call POST from browser" data-content="Use external service, like Postman">
+                                <button type="button" class="btn btn-danger">POST</button>
+                            </a>
+        
+                            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                                <strong class="d-block text-gray-dark">/api/images/</strong>
+                                Returns posted image with all fields.<br>
+                                Fields are required:<br>
+                                <i>-  title (string), link (url), eventid (integer), status (integer)</i><br>                              
+                                Any other fields are not allowed.
+                            </p>
+                    </div>
+                </div>
+        </div>                        
         
         <footer class="footer mt-auto py-3">
             <div class="container">
