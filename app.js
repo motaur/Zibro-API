@@ -45,7 +45,7 @@ app.get('/', (req, res) =>
     //res.json(`Dev app listening on port ${port}!`);
 });
 
-app.get('/api/events', async (req, res) =>
+app.get('/api/events/', async (req, res) =>
 {
     log('called get events')
 
@@ -120,7 +120,7 @@ app.get('/api/events/:id/',  async (req, res) =>
     {
         const { rows: properties } = await pool.query(`SELECT * FROM events WHERE id = ${req.params.id}`)
        
-        if (properties.length == 0) return res.status(404).json("event wasn't found");  
+        if (properties.length == 0) return res.status(404).json("Event with id " + req.params.id + " was removed or not created.");  
 
         const { rows: images } = await pool.query(`SELECT id, title, status, link FROM imagesforevents WHERE eventid = ${req.params.id}`)
 
@@ -191,10 +191,7 @@ app.put('/api/events/:id', async (req, res) =>
                            
     WHERE id = ${req.params.id};
     SELECT * FROM events WHERE id = ${req.params.id};`
-   /*
-   
-        
-   */
+
     try
     { 
         const body = await pool.query(query)
@@ -272,14 +269,33 @@ app.delete('/api/events/:id', async (req, res) =>
         if (event.length == 0) return res.status(404).json("no events were found")        
 
         await pool.query(`DELETE FROM events WHERE id = ${req.params.id}`)
+        await pool.query(`DELETE FROM imagesforevents WHERE eventid = ${req.params.id}`)
 
-        res.json("event with id " + req.params.id + " has been removed")
+        res.json("event with id " + event[0].id + " has been removed")
     }
     catch(error)
     {
         res.json(error)
     }
 });
+
+//=============images group================
+app.get('/api/images/', async (req, res) =>
+{
+    log('called get images')
+
+    try
+    {        
+        const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)       
+
+        res.json(images);
+    }
+    catch(error)
+    {
+        res.json(error);
+    }   
+});
+
 
 app.post('/api/images/', async (req, res) =>
 {
@@ -335,5 +351,22 @@ function validatePostImage(event)
     return Joi.validate(event, schema);
 }
 
+app.delete('/api/images/:id', async (req, res) =>
+{
+    log('called delete image by id')
 
+    try
+    {
+        const { rows: image } = await pool.query(`SELECT * FROM imagesforevents WHERE id = ${req.params.id}`)
+
+        if (image.length == 0) return res.status(404).json("no images were found")      
+        await pool.query(`DELETE FROM imagesforevents WHERE id = ${req.params.id}`)
+
+       res.json("image with id " + image[0].id + " for event id " + image[0].eventid + " has been removed")
+    }
+    catch(error)
+    {
+        res.json(error)
+    }
+});
 

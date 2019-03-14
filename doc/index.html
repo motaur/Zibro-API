@@ -43,7 +43,7 @@
                     </a>
 
                     <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
-                        <strong class="d-block text-gray-dark">/api/events</strong>
+                        <strong class="d-block text-gray-dark">/api/events/</strong>
                         Returns all events with all fields, with images arrays.
                     </p>
                 </div>
@@ -130,6 +130,16 @@
                 <div class="my-3 p-3 bg-white rounded shadow-sm">
                     <h6 class="border-bottom border-gray pb-2 mb-0">Images group</h6>
                     <div class="media text-muted pt-3">
+                        <a href="api/images/">
+                            <button  type="button" class="btn btn-primary">GET</button>
+                        </a>
+    
+                        <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                            <strong class="d-block text-gray-dark">/api/images/</strong>
+                            Returns all images for all events with all fields.
+                        </p>
+                    </div>
+                    <div class="media text-muted pt-3">
                             <a data-toggle="popover" title="Cannot call POST from browser" data-content="Use external service, like Postman">
                                 <button type="button" class="btn btn-danger">POST</button>
                             </a>
@@ -142,6 +152,19 @@
                                 Any other fields are not allowed.
                             </p>
                     </div>
+
+                    <div class="media text-muted pt-3">
+                        <a data-toggle="popover" title="Cannot call DELETE from browser" data-content="Use external service, like Postman">
+                            <button type="button" class="btn btn-info">DELETE</button>
+                        </a>
+    
+                        <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+                            <strong class="d-block text-gray-dark">/api/images/</strong>
+                            Returns message with deleted image id and event id for the image.<br>
+                            Parameter id of event is required after "/"<br>                          
+                        </p>
+                    </div>
+
                 </div>
         </div>                        
         
