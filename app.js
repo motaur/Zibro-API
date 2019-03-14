@@ -48,42 +48,66 @@ app.get('/', (req, res) =>
 app.get('/api/events', async (req, res) =>
 {
     log('called get events')
-    const { rows: events } = await pool.query(`SELECT * FROM events;`)
-    const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
-    
-    events.forEach(e=>e.images = images.filter(i=> i.eventid === e.id));
 
-    res.json(events);
+    try
+    {
+        const { rows: events } = await pool.query(`SELECT * FROM events;`)
+        const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
+
+        events.forEach(e=>e.images = images.filter(i=> i.eventid === e.id))
+
+        res.json(events);
+    }
+    catch(error)
+    {
+        res.json(error);
+    }   
 });
 
 app.get('/api/eventsByOrganizer/:id/',  async (req, res) =>
 {    
     log('called get events by organizer id')
 
-    const { rows: events } = await pool.query(`SELECT * FROM events WHERE organizerId = '${req.params.id}'`)
+    try
+    {
+        const { rows: events } = await pool.query(`SELECT * FROM events WHERE organizerId = '${req.params.id}'`)
 
-    if (events.length == 0) return res.status(404).json("no events were found");
+        if (events.length == 0) return res.status(404).json("no events were found")
 
-    const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
+        const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
 
-    events.forEach(e=> e.images = images.filter(i=> i.eventid === e.id));
+        events.forEach(e=> e.images = images.filter(i=> i.eventid === e.id))
 
-    res.json(events);
+        res.json(events)
+    }
+    catch(error)
+    {
+        res.json(error)
+    }
+    
 });
 
 app.get('/api/eventsByStatus/:id/', async (req, res) =>
 {    
     log('called get events by status id')
     
-    const { rows: events } = await pool.query(`SELECT * FROM events WHERE status = ${req.params.id};`);
+    try
+    {
+        const { rows: events } = await pool.query(`SELECT * FROM events WHERE status = ${req.params.id};`);
 
-    if (events.length == 0) return res.status(404).json("event wasn't found");
+        if (events.length == 0) return res.status(404).json("event wasn't found")
 
-    const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
+        const { rows: images } = await pool.query(`SELECT * FROM imagesForEvents;`)
 
-    events.forEach(e=> e.images = images.filter(i=> i.eventid === e.id));
+        events.forEach(e=> e.images = images.filter(i=> i.eventid === e.id))
 
-    res.json(events);
+        res.json(events)
+    }
+    catch(error)
+    {
+        res.json(error)
+    }
+        
 });
 
 app.get('/api/events/:id/',  async (req, res) =>
@@ -92,16 +116,24 @@ app.get('/api/events/:id/',  async (req, res) =>
 
     let event = new Object();    
     
-    const { rows: properties } = await pool.query(`SELECT * FROM events WHERE id = ${req.params.id}`)
-    //const event = events.find(event => event.id === parseInt(req.params.id));
-    if (properties.length == 0) return res.status(404).json("event wasn't found");  
+    try
+    {
+        const { rows: properties } = await pool.query(`SELECT * FROM events WHERE id = ${req.params.id}`)
+       
+        if (properties.length == 0) return res.status(404).json("event wasn't found");  
 
-    const { rows: images } = await pool.query(`SELECT id, title, status, link FROM imagesforevents WHERE eventid = ${req.params.id}`)
+        const { rows: images } = await pool.query(`SELECT id, title, status, link FROM imagesforevents WHERE eventid = ${req.params.id}`)
 
-    event.meta = properties
-    event.images = images
+        event.meta = properties
+        event.images = images
 
-    res.json(event) 
+        res.json(event) 
+    }
+    catch(error)
+    {
+        res.json(error) 
+    }
+    
 }); 
 
 app.post('/api/events/', async (req, res) =>
